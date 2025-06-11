@@ -32,7 +32,7 @@ validateSetup <- function()
     COURSEDIR <<- file.path(BASEDIR, "CSV", "Courses")
     INSTRDIR <<- file.path(BASEDIR, "CSV", "Instructors")
     STUDENTDIR <<- file.path(BASEDIR, "CSV", "Students")
-    SCOREDIR <<- file.path(BASEDIR, "CSV", "Students")
+    SCOREDIR <<- file.path(BASEDIR, "CSV", "Scores")
     OUTDIR <<- file.path(BASEDIR, "Output")
     if (!dir.exists(OUTDIR)) dir.create(OUTDIR)
 
@@ -387,6 +387,7 @@ import_score <- function(file, attendance = 0, all = FALSE)
     course <- tools::file_path_sans_ext(basename(file))
     d <- import_csv(file)
     if (is.null(d$Attendance)) d$Attendance <- attendance
+    if (is.null(d$RollNo)) d$RollNo <- d$RollNumber
     d <- d[!is.na(d$Total),
            if (all) TRUE else c("CourseCode", "RollNo", "Total", "Attendance")]
     d$RollNo <- fixRollNumber(d$RollNo)
