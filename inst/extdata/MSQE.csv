@@ -1,0 +1,57 @@
+CourseCode,CourseName,ShortName
+Comp271,Computer Programming and Applications,
+Econ271A,Microeconomics I,Micro1
+Econ271B,Microeconomics II,Micro2
+Econ272A,Game Theory I,GameTh1
+Econ272B,Game Theory II,GameTh2
+Econ273A,Econometric Methods I,EcotricMeth1
+Econ273B,Econometric Methods II,EcotricMeth2
+Econ274A,Macroeconomics I,Macro1
+Econ274B,Macroeconomics II,Macro2
+Econ275,Agricultural Economics,AgEcon
+Econ276A,Industrial Organization,IndOrg
+Econ276B,Advanced Topics in Industrial Organization,AdvIO
+Econ277A,Economic Development I,EconDev1
+Econ277B,Economic Development II,EconDev2
+Econ277C,Economic Development III,EconDev3
+Econ278,Modern Growth Theory,
+Econ279A,Selected Topics I,
+Econ279B,Selected Topics II,
+Econ279C,Selected Topics III,
+Econ280A,Individual and Collective Choice,
+Econ280B,Political Economy,
+Econ281,Incentives and Organizations,
+Econ282,Incentives and Regulation,
+Econ283A,Econometric Applications I,
+Econ283B,Econometric Applications II,
+Econ284,Bayesian Econometrics,
+Econ285,Intertemporal Economics,
+Econ286,Theory of Planning,
+Econ287,Social Accounting,
+Econ288,Public Economics,
+Econ289,Regional Economics,
+Econ290A,International Economics I,
+Econ290B,International Economics II,
+Econ290C,Advanced Topics in International Economics,
+Econ291,Mathematical Programming with Applications to Economics,
+Econ292,Monetary Economics,MonEcon
+Econ293,History of Economic Thought,
+Econ294,Environmental Economics,EnvEcon
+Econ295A,Finance I,
+Econ295B,Finance II,
+Econ295C,Finance III,
+Econ296,Comparative Systems,
+Econ297,Law and Economics,
+Econ298,Basic Economics,
+Econ299,Indian Economy: Selected Topics,
+Econ300,Experimental and Behavioural Economics,
+Econ301A,Project,Project
+Econ301B,Thesis,Thesis
+Econ302,The Theory of Mechanism Design,MechDes
+Econ303,Corporate Finance,
+Econ304,Global Macroeconomics,GlobMacro
+Econ305,Labour Economics,LabEcon
+Math271,Mathematical Methods,MathMeth
+Stat271,Statistics,
+Stat272,Sample Survey: Theory and Practice,
+Stat273,Time Series Analysis and Forecasting,TimeSeries

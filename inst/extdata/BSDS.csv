@@ -1,0 +1,15 @@
+CourseCode,CourseName,ShortName
+BDSMath01,Mathematics I,Math1
+BDSStat01,Statistics I - Data Exploration,Stat1
+BDSProb01,Probability I,Prob1
+BDSIntroComp,Introduction to Computing,IntroComp
+BDSEcon01,Economics I,Eco1
+BDSBio01,Biology I,Bio1
+BDSEarthSc,Earth System Sciences,ESS
+BDSMath02,Mathematics II,Math2
+BDSStat02,Statistics II - Introduction to Inference,Stat2
+BDSDataAnRPy,Data Analysis using R and Python,DataAnRPy
+BDSOptimNM,Optimization and Numerical Methods,OptimNM
+BDSEcon02,Economics II,Eco2
+BDSBio02,Biology II,Bio2
+BDSPhys,Physics,Physics

@@ -1,0 +1,17 @@
+CourseCode,CourseName,ShortName
+MathAn1,Analysis I,An-1
+MathAn2,Analysis II,An-2
+MathDM,Discrete Mathematics,DiscMath
+MathOT,Optimization Techniques,OT
+ProbMT,Measure Theoretic Probability,MTP
+ProbPT,Probability Theory,Prob
+ProbSP,Stochastic Processes,SP
+StatCDA,Categorical Data Analysis,CDA
+StatInf1,Statistical Inference I,Inf-1
+StatLALM,Linear Algebra and Linear Models,LALM
+StatLS,Large Sample Statistical Methods,LSSM
+StatMVA,Multivariate Analysis,MVA
+StatNPS,Nonparametric and Sequential Methods,NPSM
+StatRT,Regression Techniques,RT
+StatSSDE,Sample Surveys and Design of Experiments,SSDE
+ProgIntro,Introductory Computer Programming (non-credit),ICP

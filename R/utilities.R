@@ -25,11 +25,13 @@ import_csv <- function(...)
     read.csv(file.path(...), comment.char = "#", check.names = FALSE)
 }
 
-validateSetup <- function()
+validateSetup <- function(COURSEDIR = NULL,
+                          courses = c("MSTAT.csv", "MSQE.csv", "BSDS.csv"))
 {
     ## setup source folders
     BASEDIR <<- getLoc("BASEDIR", ".")
-    COURSEDIR <<- file.path(BASEDIR, "CSV", "Courses")
+    if (is.null(COURSEDIR))
+        COURSEDIR <<- file.path(BASEDIR, "CSV", "Courses")
     INSTRDIR <<- file.path(BASEDIR, "CSV", "Instructors")
     STUDENTDIR <<- file.path(BASEDIR, "CSV", "Students")
     SCOREDIR <<- file.path(BASEDIR, "CSV", "Scores")
@@ -37,11 +39,9 @@ validateSetup <- function()
     if (!dir.exists(OUTDIR)) dir.create(OUTDIR)
 
     ## read common information (make these package data)
-#    MSQE_COURSES <<- import_csv(COURSEDIR, "MSQE.csv")
-#    MSTAT_COURSES <<- import_csv(COURSEDIR, "MSTAT.csv")
-    BSDS_COURSES <<- import_csv(COURSEDIR, "BSDS.csv")
-#    ALL_COURSES <<- rbind(MSQE_COURSES, MSTAT_COURSES, BSDS_COURSES)
-    ALL_COURSES <<- BSDS_COURSES
+
+    ALL_COURSES <<- do.call(rbind,
+                            lapply(file.path(COURSEDIR, courses), import_csv))
 
     ## add implicit course names for backpapers
     BP_COURSES <- within(ALL_COURSES,

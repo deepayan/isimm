@@ -1,0 +1,8 @@
+Package: isimm
+Version: 0.0-1
+Title: Marks Management System for ISI
+Author: Deepayan Sarkar
+Maintainer: Deepayan Sarkar <deepayan.sarkar@gmail.com>
+Description: Tools for marks management
+Depends: R (>= 4.3.0)
+License: GPL >= 2
