@@ -25,11 +25,17 @@ import_csv <- function(...)
     read.csv(file.path(...), comment.char = "#", check.names = FALSE)
 }
 
-validateSetup <- function(COURSEDIR = NULL,
+
+
+## COURSEDIR = NULL to look in BASEDIR
+
+validateSetup <- function(BASEDIR = NULL,
+                          COURSEDIR = system.file("extdata", package = "isimm"),
                           courses = c("MSTAT.csv", "MSQE.csv", "BSDS.csv"))
 {
     ## setup source folders
-    BASEDIR <<- getLoc("BASEDIR", ".")
+    if (is.null(BASEDIR))
+        BASEDIR <<- getLoc("BASEDIR", ".")
     if (is.null(COURSEDIR))
         COURSEDIR <<- file.path(BASEDIR, "CSV", "Courses")
     INSTRDIR <<- file.path(BASEDIR, "CSV", "Instructors")
