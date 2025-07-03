@@ -8,7 +8,7 @@ unrowname <- function(x) { rownames(x) <- NULL; x }
 fixRollNumber <- function(x, check.dup = TRUE)
 {
     x <- gsub("-", "", toupper(x), fixed = TRUE)
-    if (anyDuplicated(x)) stop("duplicated RollNo")
+    if (check.dup && anyDuplicated(x)) stop("duplicated RollNo")
     x
 }
 
@@ -29,15 +29,13 @@ import_csv <- function(...)
 
 ## COURSEDIR = NULL to look in BASEDIR
 
-validateSetup <- function(BASEDIR = NULL,
-                          COURSEDIR = system.file("extdata", package = "isimm"),
+validateSetup <- function(BASEDIR. = NULL,
+                          COURSEDIR. = system.file("extdata", package = "isimm"),
                           courses = c("MSTAT.csv", "MSQE.csv", "BSDS.csv"))
 {
-    ## setup source folders
-    if (is.null(BASEDIR))
-        BASEDIR <<- getLoc("BASEDIR", ".")
-    if (is.null(COURSEDIR))
-        COURSEDIR <<- file.path(BASEDIR, "CSV", "Courses")
+    ## setup source folders in global env
+    BASEDIR <<- BASEDIR. %||% getLoc("BASEDIR", ".")
+    COURSEDIR <<- COURSEDIR. %||% file.path(BASEDIR, "CSV", "Courses")
     INSTRDIR <<- file.path(BASEDIR, "CSV", "Instructors")
     STUDENTDIR <<- file.path(BASEDIR, "CSV", "Students")
     SCOREDIR <<- file.path(BASEDIR, "CSV", "Scores")
@@ -168,8 +166,11 @@ courseDetails <- function(session)
 ## the 'batchRE' argument, which can be a vector. Normally, this
 ## should just be a single string such as '^MQ21' or even just 'MQ21'
 
-combineScores <- function(session, batchRE, courseDetails = TRUE)
+combineScores <- function(session, batchRE, courseDetails = TRUE, ...)
 {
+    cat("Processing session: ", session,
+        " for ", paste(batchRE, collapse = ", "),
+        fill = TRUE)
     keep <- character()
     for (pattern in batchRE)
         keep <- append(keep, grep(pattern, STUDENTS$RollNo, value = TRUE))
@@ -178,6 +179,7 @@ combineScores <- function(session, batchRE, courseDetails = TRUE)
     ## of RollNo by course
     SESSIONDIR <- file.path(BASEDIR, "CSV", "Scores", session)
     score_files <- list.files(SESSIONDIR, full.names = TRUE)
+    score_files <- score_files[startsWith(basename(score_files), session)]
     sessionDetails <- courseDetails(session)
     ## sanity check: should end with .csv
     fext <- tools::file_ext(score_files)
@@ -185,7 +187,16 @@ combineScores <- function(session, batchRE, courseDetails = TRUE)
         stop("Unexpected file extension::",
              unique(fext) |> paste(collapse = ", "),
              "::")
-    course_codes <- gsub("[\\.]csv$", "", basename(score_files))
+
+    slist <- sapply(score_files, import_score, ..., simplify = FALSE)
+    names(slist) <- basename(names(slist))
+    
+    course_codes <- lapply(slist, function(d) unique(d[["CourseCode"]]))
+    if (any(sapply(course_codes, length) != 1)) {
+        print(course_codes)
+        stop("Non-unique course code in at least one input file")
+    }
+    course_codes <- unlist(course_codes)
     ## str(course_codes)
     ## retain only those whose first part is a valid course code
     ccorig <- sapply(strsplit(course_codes,
@@ -195,6 +206,8 @@ combineScores <- function(session, batchRE, courseDetails = TRUE)
     ok <- ccorig %in% ALL_COURSES$CourseCode
     course_codes <- course_codes[ok]
     ccorig <- ccorig[ok]
+    slist <- slist[ok]
+
     ## Reorder according to the order in
     ## SESSIONDIR/instructors.csv. i.e.,
     ## sessionDetails$CourseCode. Note that 'course_codes' can contain
@@ -206,11 +219,23 @@ combineScores <- function(session, batchRE, courseDetails = TRUE)
     p <- order(match(ccorig, sessionDetails$CourseCode))
     course_codes <- course_codes[p]
     ccorig <- ccorig[p]
+    slist <- slist[p]
 
-    processCourse <- function(code) {
-        d <- import_csv(SESSIONDIR, paste0(code, ".csv"))
-        d$RollNo <- fixRollNumber(d$RollNo)
-        rownames(d) <- d$RollNo
+    ## processCourse <- function(code) {
+    ##     d <- import_csv(SESSIONDIR, paste0(code, ".csv"))
+    ##     d$RollNo <- fixRollNumber(d$RollNo)
+    ##     rownames(d) <- d$RollNo
+    ##     scores <- d[keep, "Total"]
+    ##     ## str(scores)
+    ##     if (all(is.na(scores))) # none of these students took this course
+    ##         NULL
+    ##     else
+    ##         structure(scores,
+    ##                   dim = c(length(keep), 1),
+    ##                   dimnames = list(keep, code))
+    ## }
+    extractTotal <- function(d) {
+        ## rownames(d) <- d$RollNo
         scores <- d[keep, "Total"]
         ## str(scores)
         if (all(is.na(scores))) # none of these students took this course
@@ -218,14 +243,14 @@ combineScores <- function(session, batchRE, courseDetails = TRUE)
         else
             structure(scores,
                       dim = c(length(keep), 1),
-                      dimnames = list(keep, code))
+                      dimnames = list(keep, d[["CourseCode"]][1]))
     }
-    slist <- sapply(course_codes, processCourse, simplify = FALSE)
-    ## str(slist)
-    slist <- slist[!sapply(slist, is.null)]
+    tlist <- sapply(slist, extractTotal, simplify = FALSE)
+    ## str(tlist)
+    tlist <- tlist[!sapply(tlist, is.null)]
     ## sort in order of courses given in session-specific 
-    ## slist <- slist[sort(names(slist))] # alphabetical sorting - not a good idea
-    score_matrix <- do.call(cbind, slist)
+    ## tlist <- tlist[sort(names(tlist))] # alphabetical sorting - not a good idea
+    score_matrix <- do.call(cbind, tlist)
 
     ## TODO:
     ##
@@ -276,10 +301,12 @@ combineScores <- function(session, batchRE, courseDetails = TRUE)
 
     ## Optionally add attributes giving full course names and
     ## instructors
+    str(sessionDetails)
+    str(tlist)
     if (courseDetails)
         ans$courseDetails <-
             subset(sessionDetails,
-                   CourseCode %in% names(slist))
+                   CourseCode %in% ccorig)
     ## str(ans)
     ans
 }
@@ -297,9 +324,9 @@ combineScores <- function(session, batchRE, courseDetails = TRUE)
 
 computeTotal <- function(x)
 {
-    print(x)
+    ## print(x)
     if (!inherits(x, "data.frame")) x <- as.data.frame(x)
-    x$ProgIntro <- NULL
+    x[["ProgIntro"]] <- x[["ProgIntro_BP"]] <- NULL
     bp <- grep("_BP$", colnames(x), value = TRUE)
     if (length(bp)) {
         for (code in bp) {
@@ -388,15 +415,24 @@ makeSessionHTML <- function(scoredata, batch, session)
 
 ## Other utilities
 
-import_score <- function(file, attendance = 0, all = FALSE)
+import_score <- function(file, attendance = NA_real_, all = FALSE, verbose = FALSE)
 {
+    if (isTRUE(verbose)) cat("Importing ", file, fill = TRUE)
     course <- tools::file_path_sans_ext(basename(file))
     d <- import_csv(file)
     if (is.null(d$Attendance)) d$Attendance <- attendance
     if (is.null(d$RollNo)) d$RollNo <- d$RollNumber
     d <- d[!is.na(d$Total),
            if (all) TRUE else c("CourseCode", "RollNo", "Total", "Attendance")]
-    d$RollNo <- fixRollNumber(d$RollNo)
+    d$RollNo <- fixRollNumber(d$RollNo, check.dup = FALSE)
+    ## make sure roll numbers are not duplicated within course code
+    dsplit <- split(d, ~ CourseCode)
+    for (dsub in dsplit) {
+        if (anyDuplicated(dsub$RollNo)) {
+            print(dsub)
+            stop("Duplicated RollNo")
+        }
+    }
     ## ans <- cbind(Course = course, d)
     ## rownames(ans) <- ans$RollNo
     ## ans
@@ -404,7 +440,7 @@ import_score <- function(file, attendance = 0, all = FALSE)
     d
 }
 
-collectAllScores <- function(session)
+collectAllScores <- function(session, verbose = FALSE)
 {
     SESSIONDIR <- file.path(BASEDIR, "CSV", "Scores", session)
     score_files <- list.files(SESSIONDIR, full.names = TRUE)
@@ -414,7 +450,38 @@ collectAllScores <- function(session)
     ## str(sessionDetails)
     names(score_files) <- tools::file_path_sans_ext(basename(score_files))
     sapply(score_files,
-           import_score,
+           import_score, verbose = verbose,
            simplify = FALSE) |> do.call(what = rbind)
 }
+
+
+compulsory_noncredit <- c("ProgIntro")
+
+
+average_BP_NC <- function(x)
+{
+    ## slightly fancy average, taking backpaper and non-credit courses
+    ## into consideration.
+    ## Assumptions:
+    ## - x is possible character
+    ## - x has names() giving course code, with _BP for backpaper
+    ## - backpaper scores are <= 45, but still check
+    ## - non credit scores are negative
+
+    if (is.list(x)) x <- unlist(x)
+    cc <- names(x)
+    x <- as.numeric(x)
+    ok <- is.finite(x) & x >= 0
+    cc <- cc[ok]
+    x <- x[ok]
+    bp <- endsWith(cc, "_BP")
+    if (any(x[bp] > 45)) stop("Found backpaper score > 45 for ",
+                              paste(cc[bp][x[bp] > 45], collapse = ", "))
+    cc <- gsub("_BP", "", cc, fixed = TRUE)
+    nc <- cc %in% compulsory_noncredit
+    z <- tapply(x[!nc], cc[!nc], max)
+    mean(z) |> round(2)
+}
+
+
 

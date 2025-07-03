@@ -6,5 +6,6 @@ export(import_csv,
        computeTotal,
        combineSessions,
        makeSessionHTML,
-       collectAllScores)
+       collectAllScores,
+       average_BP_NC)
 
