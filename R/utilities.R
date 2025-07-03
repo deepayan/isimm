@@ -301,8 +301,6 @@ combineScores <- function(session, batchRE, courseDetails = TRUE, ...)
 
     ## Optionally add attributes giving full course names and
     ## instructors
-    str(sessionDetails)
-    str(tlist)
     if (courseDetails)
         ans$courseDetails <-
             subset(sessionDetails,
