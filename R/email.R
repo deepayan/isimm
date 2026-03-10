@@ -1,5 +1,4 @@
 
-library(curl)
 
 ## constructor for email address (name + address). Should be used for
 ## sender, recipient, cc, etc.
@@ -22,8 +21,9 @@ username <- function(e)
     a[[1]]
 }
 
-server <- function(hostname, ssl = "force", username = NULL)
+server <- function(hostname, ssl = "force", username = Sys.getenv("EMAILUSER"))
 {
+    if (!nzchar(username)) username <- NULL
     PWD <- Sys.getenv("EMAILPWD") # must be defined --- otherwise fail
     if (!nzchar(PWD))
         stop("Password not available: please define the EMAILPWD environment variable")
