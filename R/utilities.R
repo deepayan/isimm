@@ -166,7 +166,7 @@ courseDetails <- function(session)
 ## the 'batchRE' argument, which can be a vector. Normally, this
 ## should just be a single string such as '^MQ21' or even just 'MQ21'
 
-combineScores <- function(session, batchRE, courseDetails = TRUE, ...)
+combineScores <- function(session, batchRE, include = NULL, exclude = NULL, courseDetails = TRUE, ...)
 {
     cat("Processing session: ", session,
         " for ", paste(batchRE, collapse = ", "),
@@ -174,9 +174,14 @@ combineScores <- function(session, batchRE, courseDetails = TRUE, ...)
     keep <- character()
     for (pattern in batchRE)
         keep <- append(keep, grep(pattern, STUDENTS$RollNo, value = TRUE))
-    ## 'keep' now has all roll numbers we wish to include. Next, we
-    ## need to read in all scores for this session, and create a table
-    ## of RollNo by course
+    ## 'keep' now has all roll numbers we wish to include. Sometimes
+    ## it is useful to additionally include or exclude specific
+    ## students (e.g., repeat students or students who have left)
+    if (!is.null(include)) keep <- union(keep, include)
+    if (!is.null(exclude)) keep <- setdiff(keep, exclude)
+    keep <- sort(unique(keep))
+    ## Next, we need to read in all scores for this session, and
+    ## create a table of RollNo by course
     SESSIONDIR <- file.path(BASEDIR, "CSV", "Scores", session)
     score_files <- list.files(SESSIONDIR, full.names = TRUE)
     score_files <- score_files[startsWith(basename(score_files), session)]
@@ -380,10 +385,11 @@ computeTotal <- function(x)
 ## require that the relevant sessions be specified explicitly (so that
 ## repeat candidates get their correct sessions)
 
-combineSessions <- function(..., batchRE, pretty = TRUE)
+combineSessions <- function(..., batchRE, include = NULL, exclude = NULL, pretty = TRUE)
 {
     slist <- sapply(c(...), combineScores,
                     batchRE = batchRE,
+                    include = include, exclude = exclude,
                     courseDetails = TRUE,
                     simplify = FALSE)
     courseList <- lapply(slist, "[[", "courseDetails")
