@@ -1,4 +1,7 @@
 
+import(jsonlite)
+import(curl)
+
 export(import_csv,
        validateSetup,
        courseDetails,
@@ -9,3 +12,5 @@ export(import_csv,
        collectAllScores,
        average_BP_NC)
 
+
+export(email, message_body, message_header)

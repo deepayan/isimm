@@ -1,6 +1,4 @@
 
-require(jsonlite)
-
 ### Processing tools to convert, split, or merge CSV files
 
 unrowname <- function(x) { rownames(x) <- NULL; x }
@@ -370,6 +368,7 @@ computeTotal <- function(x)
         }
         sum(s[is.finite(s) & s >= 0])
     }
+    str(x)
     apply(x, 1, rowTotal)
 }
 

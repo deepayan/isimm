@@ -1,6 +1,4 @@
 
-library(curl)
-
 ## constructor for email address (name + address). Should be used for
 ## sender, recipient, cc, etc.
 
@@ -110,4 +108,45 @@ message_header <- function(x, ...)
               sender = SENDER,
               recipients = RECIPIENTS)
 }
+
+
+create_message <- function(data, rollno, ...)
+{
+    mbody <- 
+        message_body_all(data, rollno,
+                         from = email("Deepayan Sarkar", "deepayan@isid.ac.in"),
+                         subject = "Provisional scores in Data Analysis course",
+                         ALL_COURSES = ALL_COURSES,
+                         STUDENTS = STUDENTS)
+    h <- attributes(mbody)
+    h$to$address <- ""
+    mhead <- 
+        message_header(h, to = email(),
+                       cc = email("Deepayan Sarkar", "deepayan.sarkar@gmail.com"))
+    msg <- paste(c(mhead, mbody), collapse = "\n")
+    attributes(msg) <- c(attributes(mhead), username = username(h$from))
+    msg
+}
+
+
+
+
+send_message <- function(msg)
+{
+
+    ## res <- 
+    ##     send_mail(mail_from = attr(msg, "sender"),
+    ##               mail_rcpt = attr(msg, "recipients"),
+    ##               message = msg,
+    ##               username = attr(msg, "username"),
+    ##               smtp_server = smtp$smtp_server,
+    ##               password  = smtp$password,
+    ##               use_ssl = smtp$use_ssl,
+    ##               verbose = FALSE)
+
+}
+
+
+
+
 
