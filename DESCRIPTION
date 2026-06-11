@@ -4,10 +4,6 @@ Title: Marks Management System for ISI
 Author: Deepayan Sarkar
 Maintainer: Deepayan Sarkar <deepayan.sarkar@gmail.com>
 Description: Tools for marks management
-<<<<<<< HEAD
-Depends: R (>= 4.3.0)
-Imports: jsonlite, curl
-=======
-Depends: R (>= 4.3.0), jsonlite, curl
->>>>>>> 7c89b51ebcd0b601261f05566317034373d1f3e1
+Depends: R (>= 4.3.0), curl
+Imports: jsonlite
 License: GPL >= 2

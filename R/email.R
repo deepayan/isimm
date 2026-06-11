@@ -107,44 +107,51 @@ message_header <- function(x, ...)
     header <- c(FROM, TO, CONTENT_TYPE, CC, BCC, SUBJECT) |> paste(collapse = "\n")
     structure(header,
               sender = SENDER,
-              recipients = RECIPIENTS)
+              recipients = RECIPIENTS,
+              from = from,
+              to = to,
+              subject = subject,
+              class = "msgheader")
 }
 
 
 create_message <- function(data, rollno, ...)
 {
     mbody <- 
-        message_body_all(data, rollno,
-                         from = email("Deepayan Sarkar", "deepayan@isid.ac.in"),
-                         subject = "Provisional scores in Data Analysis course",
-                         ALL_COURSES = ALL_COURSES,
-                         STUDENTS = STUDENTS)
-    h <- attributes(mbody)
-    h$to$address <- ""
-    mhead <- 
-        message_header(h, to = email(),
-                       cc = email("Deepayan Sarkar", "deepayan.sarkar@gmail.com"))
+        message_body(data, rollno,
+                     ALL_COURSES = ALL_COURSES,
+                     STUDENTS = STUDENTS)
+    mhead <- message_header(attributes(mbody), ...)
     msg <- paste(c(mhead, mbody), collapse = "\n")
-    attributes(msg) <- c(attributes(mhead), username = username(h$from))
+    attributes(msg) <- c(attributes(mhead),
+                         username = username(attributes(mhead)[["from"]]))
+    class(msg) <- "emailmessage"
     msg
 }
 
 
-
-
-send_message <- function(msg)
+print.emailmessage <- function(x, ...)
 {
+    cat(x, sep = "\n")
+    cat("Attributes:\n\n")
+    str(attributes(x))
+}
+   
 
-    ## res <- 
-    ##     send_mail(mail_from = attr(msg, "sender"),
-    ##               mail_rcpt = attr(msg, "recipients"),
-    ##               message = msg,
-    ##               username = attr(msg, "username"),
-    ##               smtp_server = smtp$smtp_server,
-    ##               password  = smtp$password,
-    ##               use_ssl = smtp$use_ssl,
-    ##               verbose = FALSE)
 
+
+
+send_message <- function(msg, smtp)
+{
+    send_mail(mail_from = attr(msg, "sender"),
+              mail_rcpt = attr(msg, "recipients"),
+              message = msg,
+              username = attr(msg, "username"),
+              smtp_server = smtp$smtp_server,
+              password  = smtp$password,
+              use_ssl = smtp$use_ssl,
+              ssl_verifypeer = 0,
+              verbose = FALSE)
 }
 
 
